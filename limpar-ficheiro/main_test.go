@@ -58,6 +58,9 @@ func TestEmptyFileMissing(t *testing.T) {
 	if err == nil {
 		t.Fatal("esperava erro para ficheiro inexistente")
 	}
+	if err.Error() != "ficheiro nao encontrado" {
+		t.Fatalf("mensagem inesperada: %v", err)
+	}
 }
 
 func TestEmptyFileRejectsDirectory(t *testing.T) {
