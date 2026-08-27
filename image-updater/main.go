@@ -120,8 +120,14 @@ func printResult(res Result) {
 	}
 }
 
+const logFileName = "atualizacao-imagens.log"
+
+func logPath(root string) string {
+	return filepath.Join(root, updateDirName, logFileName)
+}
+
 func writeLog(root string, res Result) {
-	path := filepath.Join(root, "atualizacao-imagens.log")
+	path := logPath(root)
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		fmt.Printf("Nao foi possivel gravar o log: %v\n", err)

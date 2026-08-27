@@ -22,6 +22,7 @@ pasta-raiz/
   update/
     logo.png          <- origem (imagens novas)
     produto.jpg
+    atualizacao-imagens.log
   loja-a/
     logo.png          <- atualizado (mesmo nome)
     produtos/         <- tambem recebe as imagens
@@ -34,7 +35,7 @@ Quando abrir o programa pode escolher:
 1. **Copiar/atualizar em todas as pastas e subpastas** — as imagens da pasta `update` passam a existir em cada pasta de destino; se ja existir um ficheiro com o mesmo nome, e substituido.
 2. **Atualizar apenas as que ja existem** — so substitui ficheiros com o mesmo nome; nao cria imagens novas nas pastas.
 
-A pasta `update`, a raiz junto ao `.exe`, pastas ocultas e `.git` nao sao alteradas. Ficheiros que ja estejam iguais sao ignorados. Fica um log em `atualizacao-imagens.log`.
+A pasta `update`, a raiz junto ao `.exe`, pastas ocultas e `.git` nao sao alteradas. Ficheiros que ja estejam iguais sao ignorados. Fica um log em `update/atualizacao-imagens.log`.
 
 ### Linha de comandos
 

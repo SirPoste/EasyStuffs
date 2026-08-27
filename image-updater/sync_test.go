@@ -175,3 +175,26 @@ func TestSkipsDotAndGitFolders(t *testing.T) {
 		t.Fatal("normal folder should receive the image")
 	}
 }
+
+func TestWriteLogGoesToUpdateFolder(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, filepath.Join(root, "update", "logo.png"), pngB)
+	writeFile(t, filepath.Join(root, "dest", "keep.txt"), []byte("x"))
+
+	res, err := SyncImages(Options{Root: root, Mode: ModeAll})
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeLog(root, res)
+
+	path := filepath.Join(root, "update", "atualizacao-imagens.log")
+	if _, err := os.Stat(path); err != nil {
+		t.Fatalf("expected log at %s: %v", path, err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "atualizacao-imagens.log")); err == nil {
+		t.Fatal("log must not be written to the root")
+	}
+	if _, err := os.Stat(filepath.Join(root, "dest", "atualizacao-imagens.log")); err == nil {
+		t.Fatal("log must not be copied to target folders")
+	}
+}
