@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Levantamento de imagens</title>
+  <style>
+    :root {
+      --bg: #f3efe8;
+      --paper: #fffdf9;
+      --ink: #1e1a17;
+      --muted: #665e57;
+      --line: #e3dbd2;
+      --accent: #0f6b62;
+      --accent-ink: #ffffff;
+      --falta: #9f2d3c;
+      --diferente: #8a5a00;
+      --extra: #1d4e89;
+      --igual: #2f6b32;
+      --ambiguo: #6436b0;
+      --erro: #9f1239;
+      --shadow: 0 10px 30px rgba(60, 40, 20, 0.06);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161311;
+        --paper: #221f1c;
+        --ink: #f4efe8;
+        --muted: #b7aea4;
+        --line: #3a342e;
+        --accent: #3dbead;
+        --accent-ink: #06221e;
+        --falta: #ff8b98;
+        --diferente: #f0c36a;
+        --extra: #8eb7ef;
+        --igual: #8dce86;
+        --ambiguo: #d2b4ff;
+        --erro: #ff8b98;
+        --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+        color-scheme: dark;
+      }
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 280px at 0% -10%, rgba(15, 107, 98, 0.16), transparent 55%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 72px; }
+    .marca {
+      margin: 0 0 6px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    h1 { margin: 0 0 8px; font-size: 34px; line-height: 1.1; }
+    h2 { margin: 0 0 8px; font-size: 20px; }
+    .lead, .ajuda { color: var(--muted); }
+    .lead { margin: 0 0 22px; max-width: 68ch; }
+    .cartao {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .etiqueta { font-weight: 650; }
+    .caminho { display: flex; gap: 8px; flex-wrap: wrap; }
+    .caminho input { flex: 1 1 240px; }
+    input[type="text"], input[type="search"], select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 11px 12px;
+    }
+    .primario, .secundario, .texto {
+      border-radius: 10px;
+      padding: 11px 16px;
+    }
+    .primario { background: var(--accent); color: var(--accent-ink); border: 0; font-weight: 700; }
+    .secundario, .texto { background: transparent; border: 1px solid var(--line); }
+    .acoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .opcoes { display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 4px 0 16px; }
+    .opcao { display: flex; gap: 8px; align-items: flex-start; }
+    .erro, .avisos, .caixa { border-radius: 12px; padding: 12px 14px; margin: 12px 0; }
+    .erro { background: color-mix(in srgb, var(--falta) 14%, var(--paper)); color: var(--ink); }
+    .avisos { background: color-mix(in srgb, var(--diferente) 16%, var(--paper)); }
+    .caixa.concluido { background: color-mix(in srgb, var(--igual) 16%, var(--paper)); }
+    .caixa.erro, .caixa.cancelado { background: color-mix(in srgb, var(--falta) 12%, var(--paper)); }
+    .barra {
+      height: 8px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .barra span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+    }
+    .barra.indeterminada span {
+      width: 35%;
+      animation: correr 1.1s ease-in-out infinite;
+    }
+    @keyframes correr {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+    .separadores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .separador {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .separador strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .separador[data-estado="em_falta"] strong { color: var(--falta); }
+    .separador[data-estado="diferente"] strong { color: var(--diferente); }
+    .separador[data-estado="ambiguo"] strong { color: var(--ambiguo); }
+    .separador[data-estado="so_analise"] strong { color: var(--extra); }
+    .separador[data-estado="igual"] strong { color: var(--igual); }
+    .separador[data-estado="erro"] strong { color: var(--erro); }
+    .separador.activo { box-shadow: inset 0 0 0 2px var(--accent); }
+    .ferramentas { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .ferramentas input { flex: 1 1 220px; }
+    .grelha {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .item {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      overflow-wrap: anywhere;
+    }
+    .item h2 { margin: 4px 0 0; font-size: 18px; }
+    .item p { margin: 8px 0; }
+    .item[data-estado="em_falta"] { border-left-color: var(--falta); }
+    .item[data-estado="diferente"] { border-left-color: var(--diferente); }
+    .item[data-estado="ambiguo"] { border-left-color: var(--ambiguo); }
+    .item[data-estado="so_analise"] { border-left-color: var(--extra); }
+    .item[data-estado="igual"] { border-left-color: var(--igual); }
+    .item[data-estado="erro"] { border-left-color: var(--erro); }
+    .topo-item { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .selo {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: color-mix(in srgb, var(--cor-selo, var(--accent)) 16%, transparent);
+      color: var(--cor-selo, var(--ink));
+    }
+    .item[data-estado="em_falta"] .selo { --cor-selo: var(--falta); }
+    .item[data-estado="diferente"] .selo { --cor-selo: var(--diferente); }
+    .item[data-estado="ambiguo"] .selo { --cor-selo: var(--ambiguo); }
+    .item[data-estado="so_analise"] .selo { --cor-selo: var(--extra); }
+    .item[data-estado="igual"] .selo { --cor-selo: var(--igual); }
+    .item[data-estado="erro"] .selo { --cor-selo: var(--erro); }
+    .fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .fotos.uma { grid-template-columns: 1fr; }
+    figure { margin: 0; }
+    .lado-titulo { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
+    img {
+      width: 100%;
+      height: 170px;
+      object-fit: contain;
+      background:
+        linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
+      background-size: 18px 18px;
+      background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    figcaption { font-size: 12px; color: var(--muted); padding-top: 4px; overflow-wrap: anywhere; }
+    figure.sem-imagem img { display: none; }
+    figure.sem-imagem::before {
+      content: "Pré-visualização indisponível neste browser";
+      display: grid;
+      place-items: center;
+      height: 170px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 8px;
+    }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--muted); }
+    .vazio { color: var(--muted); grid-column: 1 / -1; }
+    .paginas { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+    .nota-campo { min-height: 1.2em; }
+    footer { color: var(--muted); font-size: 13px; }
+    .incluir { font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="marca">EasyStuffs</p>
+    <h1>Levantamento de imagens</h1>
+    <p class="lead">A pasta C8PA é a referência. Indique a pasta de análise para ver que imagens estão em falta ou com conteúdo diferente, e guarde uma cópia dessas imagens noutra pasta.</p>
+
+    <form id="formulario" class="cartao">
+      <label class="campo">
+        <span class="etiqueta">Pasta de referência (C8PA)</span>
+        <span class="caminho">
+          <input id="referencia" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\C8PA">
+          <button class="secundario" type="button" id="escolher-referencia">Escolher…</button>
+        </span>
+        <span class="ajuda nota-campo" id="nota-referencia"></span>
+      </label>
+      <label class="campo">
+        <span class="etiqueta">Pasta de análise</span>
+        <span class="caminho">
+          <input id="analise" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\linha_12">
+          <button class="secundario" type="button" id="escolher-analise">Escolher…</button>
+        </span>
+        <span class="ajuda nota-campo" id="nota-analise"></span>
+      </label>
+      <label class="campo">
+        <span class="etiqueta">Pasta de destino das cópias</span>
+        <span class="caminho">
+          <input id="destino" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\linha_12_diferencas">
+          <button class="secundario" type="button" id="escolher-destino">Escolher…</button>
+        </span>
+        <span class="ajuda nota-campo" id="nota-destino"></span>
+      </label>
+
+      <label class="campo">
+        <span class="etiqueta">Como comparar</span>
+        <select id="modo">
+          <option value="nome">Pelo nome do ficheiro</option>
+          <option value="relativo">Pelo caminho relativo</option>
+        </select>
+        <span class="ajuda">Pelo nome, a imagem conta mesmo que esteja noutra subpasta. Pelo caminho relativo, a subpasta também tem de coincidir.</span>
+      </label>
+      <div class="opcoes">
+        <label class="opcao"><input id="ignorar-maiusculas" type="checkbox" checked> Ignorar maiúsculas e minúsculas</label>
+        <label class="opcao"><input id="ignorar-extensao" type="checkbox"> Ignorar a extensão (JPG e PNG com o mesmo nome contam como o mesmo ficheiro)</label>
+      </div>
+      <p class="ajuda">Extensões lidas: <!--EXTENSOES-->. Um ficheiro é diferente quando o conteúdo não é igual, mesmo que a imagem pareça semelhante.</p>
+      <div class="acoes">
+        <button class="primario" type="submit" id="comparar">Comparar</button>
+        <button class="secundario" type="button" id="cancelar" hidden>Cancelar</button>
+        <button class="texto" type="button" id="exemplo">Experimentar com pastas de exemplo</button>
+      </div>
+    </form>
+
+    <div id="erro" class="erro" hidden role="alert"></div>
+    <div id="progresso" hidden aria-live="polite">
+      <div class="barra" id="barra"><span id="barra-fill"></span></div>
+      <p class="ajuda" id="progresso-msg"></p>
+    </div>
+
+    <section id="resultados" hidden>
+      <p id="frase"></p>
+      <p class="ajuda" id="opcoes-usadas"></p>
+      <div id="avisos" class="avisos" hidden></div>
+      <div class="separadores" id="separadores" role="tablist">
+        <button type="button" class="separador activo" data-estado="em_falta" role="tab" aria-selected="true"><strong id="n-em_falta">0</strong><span>Em falta</span></button>
+        <button type="button" class="separador" data-estado="diferente" role="tab" aria-selected="false"><strong id="n-diferente">0</strong><span>Conteúdo diferente</span></button>
+        <button type="button" class="separador" data-estado="ambiguo" role="tab" aria-selected="false"><strong id="n-ambiguo">0</strong><span>Ambíguos</span></button>
+        <button type="button" class="separador" data-estado="so_analise" role="tab" aria-selected="false"><strong id="n-so_analise">0</strong><span>Só na análise</span></button>
+        <button type="button" class="separador" data-estado="igual" role="tab" aria-selected="false"><strong id="n-igual">0</strong><span>Iguais</span></button>
+        <button type="button" class="separador" data-estado="erro" id="tab-erro" role="tab" aria-selected="false" hidden><strong id="n-erro">0</strong><span>Erros</span></button>
+      </div>
+      <div class="ferramentas">
+        <input id="pesquisa" type="search" placeholder="Filtrar por nome ou caminho">
+        <button class="secundario" type="button" id="marcar">Marcar visíveis</button>
+        <button class="secundario" type="button" id="desmarcar">Desmarcar visíveis</button>
+        <button class="secundario" type="button" id="csv">Descarregar CSV</button>
+      </div>
+      <div class="grelha" id="grelha"></div>
+      <div class="paginas" id="paginas" hidden>
+        <button class="secundario" type="button" id="anterior">Anterior</button>
+        <span id="pagina-info"></span>
+        <button class="secundario" type="button" id="seguinte">Seguinte</button>
+      </div>
+
+      <section class="cartao" id="painel-copia">
+        <h2>Guardar cópias</h2>
+        <p class="ajuda">As imagens marcadas são copiadas para a pasta de destino. A referência e a análise não são alteradas. Pastas criadas: em_falta, conteudo_diferente, ambiguos e, se escolher, so_na_analise. O relatório fica em relatorio.csv e resumo.txt.</p>
+        <div class="opcoes">
+          <label class="opcao"><input id="copiar-em_falta" type="checkbox" checked> Em falta</label>
+          <label class="opcao"><input id="copiar-diferente" type="checkbox" checked> Conteúdo diferente</label>
+          <label class="opcao"><input id="copiar-ambiguo" type="checkbox" checked> Ambíguos</label>
+          <label class="opcao"><input id="copiar-so_analise" type="checkbox"> Só na análise</label>
+          <label class="opcao" id="rotulo-copiar-erro" hidden><input id="copiar-erro" type="checkbox" checked> Erros de leitura</label>
+        </div>
+        <button class="primario" type="button" id="copiar">Copiar diferenças</button>
+        <div id="caixa-copia" class="caixa" hidden></div>
+      </section>
+    </section>
+
+    <footer>
+      <p>O programa só lê a referência e a análise. Só escreve na pasta de destino. Deixe a janela do programa aberta enquanto usa esta página.</p>
+    </footer>
+  </main>
+  <noscript><p>Este programa precisa de JavaScript no browser.</p></noscript>
+  <script>
+    const SELOS = {
+      em_falta: "Em falta",
+      diferente: "Conteúdo diferente",
+      igual: "Igual",
+      so_analise: "Só na análise",
+      ambiguo: "Ambíguo",
+      erro: "Erro de leitura"
+    };
+    const VAZIO = {
+      em_falta: "Nenhuma imagem da referência está em falta na análise.",
+      diferente: "Não há imagens com o mesmo nome e conteúdo diferente.",
+      igual: "Nenhuma imagem igual.",
+      so_analise: "A análise não tem imagens extra face à referência.",
+      ambiguo: "Não há nomes repetidos que impeçam a correspondência.",
+      erro: "Não houve erros de leitura."
+    };
+    const state = {
+      jobId: null,
+      tab: "em_falta",
+      q: "",
+      offset: 0,
+      limit: 24,
+      excluir: new Set(),
+      pedido: 0,
+      visto: null,
+      timer: null
+    };
+
+    function escapeHtml(valor) {
+      return String(valor ?? "").replace(/[&<>"']/g, function (caracter) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[caracter];
+      });
+    }
+
+    function formatSize(tamanho) {
+      const n = Number(tamanho) || 0;
+      if (n < 1024) return n + " B";
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+      return (n / 1024 / 1024).toFixed(1) + " MB";
+    }
+
+    function percentagem(atual, total) {
+      if (!total) return null;
+      return Math.max(0, Math.min(100, Math.round((atual / total) * 100)));
+    }
+
+    async function pedir(url, corpo) {
+      const resposta = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corpo || {})
+      });
+      return lerResposta(resposta);
+    }
+
+    async function obter(url) {
+      const resposta = await fetch(url);
+      return lerResposta(resposta);
+    }
+
+    async function lerResposta(resposta) {
+      let dados = {};
+      try { dados = await resposta.json(); } catch (e) { dados = {}; }
+      if (!resposta.ok) throw new Error(dados.erro || "Não foi possível concluir o pedido.");
+      return dados;
+    }
+
+    function mostrarErro(mensagem) {
+      const caixa = document.getElementById("erro");
+      caixa.hidden = false;
+      caixa.textContent = mensagem;
+    }
+
+    function esconderErro() {
+      const caixa = document.getElementById("erro");
+      caixa.hidden = true;
+      caixa.textContent = "";
+    }
+
+    function mostrarProgresso(mensagem, percent) {
+      const bloco = document.getElementById("progresso");
+      const barra = document.getElementById("barra");
+      const fill = document.getElementById("barra-fill");
+      bloco.hidden = false;
+      document.getElementById("progresso-msg").textContent = mensagem || "";
+      if (percent === null || percent === undefined) {
+        barra.classList.add("indeterminada");
+        fill.style.width = "";
+      } else {
+        barra.classList.remove("indeterminada");
+        fill.style.width = percent + "%";
+      }
+    }
+
+    function esconderProgresso() {
+      document.getElementById("progresso").hidden = true;
+    }
+
+    function lerFormulario() {
+      return {
+        referencia: document.getElementById("referencia").value.trim(),
+        analise: document.getElementById("analise").value.trim(),
+        destino: document.getElementById("destino").value.trim(),
+        modo: document.getElementById("modo").value,
+        ignorar_maiusculas: document.getElementById("ignorar-maiusculas").checked,
+        ignorar_extensao: document.getElementById("ignorar-extensao").checked
+      };
+    }
+
+    function sugerirDestino() {
+      const destino = document.getElementById("destino");
+      if (destino.value.trim()) return;
+      const analise = document.getElementById("analise").value.trim();
+      const match = analise.match(/^(.*)[\\/]([^\\/]+)$/);
+      if (!match || !match[1]) return;
+      const sep = analise.includes("\\") ? "\\" : "/";
+      destino.value = match[1] + sep + match[2] + "_diferencas";
+    }
+
+    function frase(totais) {
+      return "Das " + totais.referencia + " imagens da referência: " + totais.igual +
+        " iguais, " + totais.diferente + " com conteúdo diferente, " + totais.em_falta +
+        " em falta e " + (totais.ref_em_ambiguos || 0) +
+        " sem correspondência única. Na análise há " + totais.so_analise +
+        " que não existem na referência.";
+    }
+
+    function fraseOpcoes(opcoes) {
+      if (!opcoes) return "";
+      const modo = opcoes.modo === "relativo" ? "caminho relativo" : "nome do ficheiro";
+      const maius = opcoes.ignorar_maiusculas
+        ? "sem distinguir maiúsculas de minúsculas"
+        : "a distinguir maiúsculas de minúsculas";
+      const ext = opcoes.ignorar_extensao ? "ignorando a extensão" : "incluindo a extensão";
+      return "Comparação pelo " + modo + ", " + maius + ", " + ext + ".";
+    }
+
+    function seleccionarTab(estado) {
+      state.tab = estado;
+      document.querySelectorAll(".separador").forEach(function (botao) {
+        const activo = botao.dataset.estado === estado;
+        botao.classList.toggle("activo", activo);
+        botao.setAttribute("aria-selected", activo ? "true" : "false");
+      });
+    }
+
+    function mostrarResultados(resumo) {
+      document.getElementById("resultados").hidden = false;
+      const totais = resumo.totais;
+      ["em_falta", "diferente", "ambiguo", "so_analise", "igual", "erro"].forEach(function (estado) {
+        const el = document.getElementById("n-" + estado);
+        if (el) el.textContent = totais[estado] || 0;
+      });
+      document.getElementById("frase").textContent = frase(totais);
+      document.getElementById("opcoes-usadas").textContent = fraseOpcoes(resumo.opcoes);
+      document.getElementById("tab-erro").hidden = !(totais.erro > 0);
+      document.getElementById("rotulo-copiar-erro").hidden = !(totais.erro > 0);
+      const avisos = document.getElementById("avisos");
+      if (resumo.avisos && resumo.avisos.length) {
+        avisos.hidden = false;
+        avisos.innerHTML = resumo.avisos.map(function (aviso) {
+          return "<p>" + escapeHtml(aviso) + "</p>";
+        }).join("");
+      } else {
+        avisos.hidden = true;
+        avisos.innerHTML = "";
+      }
+      seleccionarTab(state.tab || "em_falta");
+    }
+
+    function miniatura(item, lado, indice, ficheiro) {
+      const src = "/api/imagem?id=" + encodeURIComponent(state.jobId) +
+        "&item=" + encodeURIComponent(item.id) +
+        "&lado=" + lado +
+        "&indice=" + indice;
+      const legenda = escapeHtml(ficheiro.rel) + " · " + formatSize(ficheiro.size);
+      return '<figure><img src="' + src + '" alt="' + escapeHtml(ficheiro.nome) +
+        '" loading="lazy" decoding="async"><figcaption>' + legenda + "</figcaption></figure>";
+    }
+
+    function fotos(item, lado, etiqueta) {
+      const lista = lado === "referencia" ? item.referencias : item.analises;
+      if (!lista.length) return "";
+      const visiveis = lista.slice(0, 4).map(function (ficheiro, indice) {
+        return miniatura(item, lado, indice, ficheiro);
+      }).join("");
+      const extra = lista.length - Math.min(lista.length, 4);
+      const mais = extra > 0 ? '<p class="ajuda">+ ' + extra + " ficheiros</p>" : "";
+      return '<div><p class="lado-titulo">' + etiqueta + "</p>" + visiveis + mais + "</div>";
+    }
+
+    function detalhes(item) {
+      const blocos = [];
+      item.referencias.concat(item.analises).forEach(function (ficheiro) {
+        let linha = escapeHtml(ficheiro.abs);
+        if (ficheiro.hash) linha += "<br>SHA-256: " + escapeHtml(ficheiro.hash);
+        blocos.push("<p>" + linha + "</p>");
+      });
+      if (!blocos.length) return "";
+      return "<details><summary>Caminhos completos</summary>" + blocos.join("") + "</details>";
+    }
+
+    function renderGrelha(data) {
+      const grelha = document.getElementById("grelha");
+      state.paginaIds = data.itens.filter(function (item) { return item.estado !== "igual"; }).map(function (item) { return item.id; });
+      if (!data.total) {
+        const mensagem = state.q ? "Nenhum resultado para esta pesquisa." : (VAZIO[state.tab] || "Nada nesta categoria.");
+        grelha.innerHTML = '<p class="vazio">' + mensagem + "</p>";
+      } else {
+        grelha.innerHTML = data.itens.map(function (item) {
+          const lados = [
+            fotos(item, "referencia", "Referência"),
+            fotos(item, "analise", "Análise")
+          ].filter(Boolean);
+          const caixa = item.estado === "igual" ? "" :
+            '<label class="incluir"><input type="checkbox" data-id="' + escapeHtml(item.id) + '"' +
+            (state.excluir.has(item.id) ? "" : " checked") + "> Incluir na cópia</label>";
+          return '<article class="item" data-estado="' + escapeHtml(item.estado) + '">' +
+            '<div class="topo-item"><div><span class="selo">' + SELOS[item.estado] + "</span>" +
+            "<h2>" + escapeHtml(item.nome) + "</h2></div>" + caixa + "</div>" +
+            "<p>" + escapeHtml(item.nota) + "</p>" +
+            '<div class="fotos' + (lados.length > 1 ? "" : " uma") + '">' + lados.join("") + "</div>" +
+            detalhes(item) + "</article>";
+        }).join("");
+        grelha.querySelectorAll("img").forEach(function (img) {
+          img.addEventListener("error", function () {
+            const figure = img.closest("figure");
+            if (figure) figure.classList.add("sem-imagem");
+          });
+        });
+      }
+      const paginas = document.getElementById("paginas");
+      const inicio = data.total ? state.offset + 1 : 0;
+      const fim = Math.min(state.offset + data.itens.length, data.total);
+      document.getElementById("pagina-info").textContent = data.total ? (inicio + "–" + fim + " de " + data.total) : "";
+      document.getElementById("anterior").disabled = state.offset <= 0;
+      document.getElementById("seguinte").disabled = state.offset + state.limit >= data.total;
+      paginas.hidden = data.total <= state.limit;
+    }
+
+    async function carregarItens() {
+      if (!state.jobId) return;
+      const meu = ++state.pedido;
+      const params = new URLSearchParams({
+        id: state.jobId,
+        estado: state.tab,
+        q: state.q,
+        offset: String(state.offset),
+        limit: String(state.limit)
+      });
+      try {
+        const data = await obter("/api/itens?" + params.toString());
+        if (meu !== state.pedido) return;
+        renderGrelha(data);
+      } catch (e) {
+        if (meu !== state.pedido) return;
+        mostrarErro(e.message);
+      }
+    }
+
+    function renderCopia(copia) {
+      const caixa = document.getElementById("caixa-copia");
+      if (!copia) {
+        caixa.hidden = true;
+        return;
+      }
+      if (copia.estado === "a_correr") {
+        mostrarProgresso(copia.mensagem, percentagem(copia.atual, copia.total));
+        document.getElementById("cancelar").hidden = false;
+        return;
+      }
+      document.getElementById("cancelar").hidden = true;
+      document.getElementById("copiar").disabled = false;
+      esconderProgresso();
+      caixa.hidden = false;
+      caixa.className = "caixa " + (copia.estado || "");
+      if (copia.estado === "erro") {
+        caixa.innerHTML = "<p>" + escapeHtml(copia.erro || "Não foi possível copiar.") + "</p>";
+        return;
+      }
+      if (copia.estado === "cancelado") {
+        caixa.innerHTML = "<p>Cópia cancelada. Os ficheiros já copiados mantêm-se na pasta de destino.</p>";
+        return;
+      }
+      const resultado = copia.resultado || {};
+      const falhas = (resultado.falhas || []).map(function (falha) {
+        return "<li>" + escapeHtml(falha.origem) + " — " + escapeHtml(falha.motivo) + "</li>";
+      }).join("");
+      caixa.innerHTML =
+        "<p><strong>" + (resultado.copiados || 0) + " ficheiros copiados.</strong> A referência e a análise não foram alteradas.</p>" +
+        "<p>Pasta: " + escapeHtml(resultado.destino || "") + "</p>" +
+        "<p>Relatório: " + escapeHtml(resultado.relatorio || "") + "</p>" +
+        (falhas ? "<ul>" + falhas + "</ul>" : "") +
+        '<p><button class="secundario" type="button" id="abrir-destino">Abrir pasta de destino</button></p>';
+      const abrir = document.getElementById("abrir-destino");
+      if (abrir) {
+        abrir.addEventListener("click", function () {
+          pedir("/api/abrir", { caminho: resultado.destino }).catch(function (e) { mostrarErro(e.message); });
+        });
+      }
+    }
+
+    function renderEstado(data) {
+      const copiaCorre = data.copia && data.copia.estado === "a_correr";
+      if (data.estado === "a_correr" && !copiaCorre) {
+        mostrarProgresso(data.mensagem, percentagem(data.atual, data.total));
+        document.getElementById("cancelar").hidden = false;
+      }
+      if (data.estado !== "a_correr") {
+        document.getElementById("comparar").disabled = false;
+      }
+      if (data.estado === "erro") {
+        esconderProgresso();
+        document.getElementById("cancelar").hidden = true;
+        mostrarErro(data.erro || "Não foi possível comparar.");
+      }
+      if (data.estado === "cancelado") {
+        esconderProgresso();
+        document.getElementById("cancelar").hidden = true;
+        mostrarErro("Comparação cancelada.");
+      }
+      if (data.estado === "concluido" && data.resumo && state.visto !== data.id) {
+        state.visto = data.id;
+        esconderProgresso();
+        document.getElementById("cancelar").hidden = true;
+        mostrarResultados(data.resumo);
+        carregarItens();
+      }
+      if (data.copia) renderCopia(data.copia);
+    }
+
+    function agendarPoll() {
+      clearTimeout(state.timer);
+      state.timer = setTimeout(poll, 400);
+    }
+
+    function poll() {
+      clearTimeout(state.timer);
+      if (!state.jobId) return;
+      obter("/api/estado?id=" + encodeURIComponent(state.jobId))
+        .then(function (data) {
+          renderEstado(data);
+          const correr = data.estado === "a_correr" || (data.copia && data.copia.estado === "a_correr");
+          if (correr && state.jobId === data.id) agendarPoll();
+        })
+        .catch(function () {
+          esconderProgresso();
+          document.getElementById("comparar").disabled = false;
+          document.getElementById("copiar").disabled = false;
+          mostrarErro("Perdi a ligação ao programa. Confirme que a janela do programa continua aberta.");
+        });
+    }
+
+    async function comparar() {
+      esconderErro();
+      const dados = lerFormulario();
+      if (!dados.referencia) {
+        mostrarErro("Indique a pasta de referência (C8PA).");
+        document.getElementById("referencia").focus();
+        return;
+      }
+      if (!dados.analise) {
+        mostrarErro("Indique a pasta de análise.");
+        document.getElementById("analise").focus();
+        return;
+      }
+      document.getElementById("resultados").hidden = true;
+      document.getElementById("caixa-copia").hidden = true;
+      document.getElementById("comparar").disabled = true;
+      document.getElementById("cancelar").hidden = false;
+      state.excluir = new Set();
+      state.visto = null;
+      state.tab = "em_falta";
+      state.q = "";
+      state.offset = 0;
+      document.getElementById("pesquisa").value = "";
+      mostrarProgresso("A preparar a comparação…", null);
+      try {
+        const data = await pedir("/api/comparar", dados);
+        state.jobId = data.id;
+        poll();
+      } catch (e) {
+        esconderProgresso();
+        document.getElementById("comparar").disabled = false;
+        document.getElementById("cancelar").hidden = true;
+        mostrarErro(e.message);
+      }
+    }
+
+    async function copiar() {
+      esconderErro();
+      const destino = document.getElementById("destino").value.trim();
+      if (!destino) {
+        mostrarErro("Indique a pasta de destino para guardar as cópias.");
+        document.getElementById("destino").focus();
+        return;
+      }
+      if (!state.jobId) return;
+      document.getElementById("copiar").disabled = true;
+      try {
+        await pedir("/api/copiar", {
+          id: state.jobId,
+          destino: destino,
+          incluir: {
+            em_falta: document.getElementById("copiar-em_falta").checked,
+            diferente: document.getElementById("copiar-diferente").checked,
+            ambiguo: document.getElementById("copiar-ambiguo").checked,
+            so_analise: document.getElementById("copiar-so_analise").checked,
+            erro: document.getElementById("copiar-erro").checked
+          },
+          excluir: Array.from(state.excluir)
+        });
+        poll();
+      } catch (e) {
+        document.getElementById("copiar").disabled = false;
+        mostrarErro(e.message);
+      }
+    }
+
+    async function escolher(campo) {
+      const nota = document.getElementById("nota-" + campo);
+      nota.textContent = "Se abriu uma janela por trás do browser, use-a para escolher a pasta.";
+      try {
+        const data = await pedir("/api/escolher", {});
+        if (data.cancelado) {
+          nota.textContent = "";
+          return;
+        }
+        if (data.erro) {
+          nota.textContent = data.erro;
+          return;
+        }
+        document.getElementById(campo).value = data.caminho;
+        nota.textContent = "";
+        if (campo === "analise") sugerirDestino();
+      } catch (e) {
+        nota.textContent = e.message;
+      }
+    }
+
+    async function experimentar() {
+      const botao = document.getElementById("exemplo");
+      botao.disabled = true;
+      esconderErro();
+      try {
+        const data = await pedir("/api/exemplo", {});
+        document.getElementById("referencia").value = data.referencia;
+        document.getElementById("analise").value = data.analise;
+        document.getElementById("destino").value = data.destino;
+        document.getElementById("nota-referencia").textContent = "Pastas de exemplo criadas ao lado do programa.";
+      } catch (e) {
+        mostrarErro(e.message);
+      } finally {
+        botao.disabled = false;
+      }
+    }
+
+    async function carregarUltimas() {
+      try {
+        const data = await obter("/api/ultimas");
+        if (data.referencia) document.getElementById("referencia").value = data.referencia;
+        if (data.analise) document.getElementById("analise").value = data.analise;
+        if (data.destino) document.getElementById("destino").value = data.destino;
+        if (data.modo) document.getElementById("modo").value = data.modo;
+        document.getElementById("ignorar-maiusculas").checked = data.ignorar_maiusculas !== false;
+        document.getElementById("ignorar-extensao").checked = Boolean(data.ignorar_extensao);
+      } catch (e) { /* a página funciona mesmo sem histórico */ }
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function (event) {
+      event.preventDefault();
+      comparar();
+    });
+    document.getElementById("escolher-referencia").addEventListener("click", function () { escolher("referencia"); });
+    document.getElementById("escolher-analise").addEventListener("click", function () { escolher("analise"); });
+    document.getElementById("escolher-destino").addEventListener("click", function () { escolher("destino"); });
+    document.getElementById("analise").addEventListener("change", sugerirDestino);
+    document.getElementById("exemplo").addEventListener("click", experimentar);
+    document.getElementById("cancelar").addEventListener("click", function () {
+      if (state.jobId) pedir("/api/cancelar", { id: state.jobId }).catch(function (e) { mostrarErro(e.message); });
+    });
+    document.getElementById("copiar").addEventListener("click", copiar);
+    document.getElementById("csv").addEventListener("click", function () {
+      if (!state.jobId) return;
+      window.location = "/api/relatorio?id=" + encodeURIComponent(state.jobId);
+    });
+    document.getElementById("separadores").addEventListener("click", function (event) {
+      const botao = event.target.closest(".separador");
+      if (!botao || botao.hidden) return;
+      state.offset = 0;
+      seleccionarTab(botao.dataset.estado);
+      carregarItens();
+    });
+    document.getElementById("grelha").addEventListener("change", function (event) {
+      const el = event.target;
+      if (!el.matches || !el.matches("input[data-id]")) return;
+      if (el.checked) state.excluir.delete(el.dataset.id);
+      else state.excluir.add(el.dataset.id);
+    });
+    document.getElementById("marcar").addEventListener("click", function () {
+      document.querySelectorAll("#grelha input[data-id]").forEach(function (el) {
+        el.checked = true;
+        state.excluir.delete(el.dataset.id);
+      });
+    });
+    document.getElementById("desmarcar").addEventListener("click", function () {
+      document.querySelectorAll("#grelha input[data-id]").forEach(function (el) {
+        el.checked = false;
+        state.excluir.add(el.dataset.id);
+      });
+    });
+    let pesquisaTimer = null;
+    document.getElementById("pesquisa").addEventListener("input", function () {
+      clearTimeout(pesquisaTimer);
+      pesquisaTimer = setTimeout(function () {
+        state.q = document.getElementById("pesquisa").value.trim();
+        state.offset = 0;
+        carregarItens();
+      }, 250);
+    });
+    document.getElementById("anterior").addEventListener("click", function () {
+      state.offset = Math.max(0, state.offset - state.limit);
+      carregarItens();
+    });
+    document.getElementById("seguinte").addEventListener("click", function () {
+      state.offset += state.limit;
+      carregarItens();
+    });
+    carregarUltimas();
+  </script>
+</body>
+</html>
