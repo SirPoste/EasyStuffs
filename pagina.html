@@ -453,12 +453,17 @@
       destino.value = match[1] + sep + match[2] + "_diferencas";
     }
 
+    function fraseExtra(total) {
+      if (total === 0) return "A análise não tem imagens para além da referência.";
+      if (total === 1) return "Na análise há 1 imagem que não existe na referência.";
+      return "Na análise há " + total + " imagens que não existem na referência.";
+    }
+
     function frase(totais) {
       return "Das " + totais.referencia + " imagens da referência: " + totais.igual +
         " iguais, " + totais.diferente + " com conteúdo diferente, " + totais.em_falta +
         " em falta e " + (totais.ref_em_ambiguos || 0) +
-        " sem correspondência única. Na análise há " + totais.so_analise +
-        " que não existem na referência.";
+        " sem correspondência única. " + fraseExtra(totais.so_analise);
     }
 
     function fraseOpcoes(opcoes) {
