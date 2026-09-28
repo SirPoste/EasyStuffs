@@ -853,6 +853,8 @@ def interpret_picker(codigo: int, saida: str, erro: str) -> dict:
 
 
 def choose_folder() -> dict:
+    # A janela tem de ter um dono visível para o Firefox. Com root.withdraw()
+    # e a consola escondida, o diálogo abre atrás do browser ou nem aparece.
     codigo = (
         "import sys\n"
         "try:\n"
@@ -862,22 +864,33 @@ def choose_folder() -> dict:
         "    sys.stderr.write('tkinter_indisponivel')\n"
         "    raise SystemExit(2)\n"
         "root = tk.Tk()\n"
-        "root.withdraw()\n"
+        "root.title('Escolher pasta')\n"
+        "root.overrideredirect(True)\n"
+        "root.geometry('0x0+0+0')\n"
         "try:\n"
         "    root.attributes('-topmost', True)\n"
         "except Exception:\n"
         "    pass\n"
-        "caminho = filedialog.askdirectory(title='Escolher pasta') or ''\n"
+        "root.lift()\n"
+        "root.focus_force()\n"
+        "root.update_idletasks()\n"
+        "caminho = filedialog.askdirectory(parent=root, title='Escolher pasta') or ''\n"
         "sys.stdout.write(caminho)\n"
         "root.destroy()\n"
     )
+    executavel = sys.executable
     kwargs = {"capture_output": True, "text": True, "timeout": 300}
     if sys.platform == "win32":
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        kwargs["startupinfo"] = startupinfo
+        pythonw = Path(sys.executable).with_name("pythonw.exe")
+        if pythonw.is_file():
+            executavel = str(pythonw)
+        else:
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = 1
+            kwargs["startupinfo"] = startupinfo
     try:
-        proc = subprocess.run([sys.executable, "-c", codigo], **kwargs)
+        proc = subprocess.run([executavel, "-c", codigo], **kwargs)
     except subprocess.TimeoutExpired:
         return {"erro": "A janela de escolha da pasta demorou demasiado. Cole o caminho."}
     except OSError:

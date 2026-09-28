@@ -237,30 +237,30 @@
     <p class="lead">A pasta C8PA é a referência. Indique a pasta de análise para ver que imagens estão em falta ou com conteúdo diferente, e guarde uma cópia dessas imagens noutra pasta.</p>
 
     <form id="formulario" class="cartao">
-      <label class="campo">
-        <span class="etiqueta">Pasta de referência (C8PA)</span>
+      <div class="campo">
+        <label class="etiqueta" for="referencia">Pasta de referência (C8PA)</label>
         <span class="caminho">
           <input id="referencia" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\C8PA">
           <button class="secundario" type="button" id="escolher-referencia">Escolher…</button>
         </span>
         <span class="ajuda nota-campo" id="nota-referencia"></span>
-      </label>
-      <label class="campo">
-        <span class="etiqueta">Pasta de análise</span>
+      </div>
+      <div class="campo">
+        <label class="etiqueta" for="analise">Pasta de análise</label>
         <span class="caminho">
           <input id="analise" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\linha_12">
           <button class="secundario" type="button" id="escolher-analise">Escolher…</button>
         </span>
         <span class="ajuda nota-campo" id="nota-analise"></span>
-      </label>
-      <label class="campo">
-        <span class="etiqueta">Pasta de destino das cópias</span>
+      </div>
+      <div class="campo">
+        <label class="etiqueta" for="destino">Pasta de destino das cópias</label>
         <span class="caminho">
           <input id="destino" type="text" spellcheck="false" autocomplete="off" placeholder="D:\imagens\linha_12_diferencas">
           <button class="secundario" type="button" id="escolher-destino">Escolher…</button>
         </span>
         <span class="ajuda nota-campo" id="nota-destino"></span>
-      </label>
+      </div>
 
       <label class="campo">
         <span class="etiqueta">Como comparar</span>
@@ -760,7 +760,9 @@
 
     async function escolher(campo) {
       const nota = document.getElementById("nota-" + campo);
-      nota.textContent = "Se abriu uma janela por trás do browser, use-a para escolher a pasta.";
+      const botao = document.getElementById("escolher-" + campo);
+      nota.textContent = "A janela de pastas deve abrir à frente. Se não a vires, verifica a barra de tarefas.";
+      if (botao) botao.disabled = true;
       try {
         const data = await pedir("/api/escolher", {});
         if (data.cancelado) {
@@ -776,6 +778,8 @@
         if (campo === "analise") sugerirDestino();
       } catch (e) {
         nota.textContent = e.message;
+      } finally {
+        if (botao) botao.disabled = false;
       }
     }
 
@@ -812,9 +816,13 @@
       event.preventDefault();
       comparar();
     });
-    document.getElementById("escolher-referencia").addEventListener("click", function () { escolher("referencia"); });
-    document.getElementById("escolher-analise").addEventListener("click", function () { escolher("analise"); });
-    document.getElementById("escolher-destino").addEventListener("click", function () { escolher("destino"); });
+    ["referencia", "analise", "destino"].forEach(function (campo) {
+      document.getElementById("escolher-" + campo).addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        escolher(campo);
+      });
+    });
     document.getElementById("analise").addEventListener("change", sugerirDestino);
     document.getElementById("exemplo").addEventListener("click", experimentar);
     document.getElementById("cancelar").addEventListener("click", function () {

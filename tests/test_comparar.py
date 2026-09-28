@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import sys
 import tempfile
 import threading
@@ -227,6 +228,9 @@ class LogicaTest(unittest.TestCase):
             self.assertIn("Levantamento de imagens", html)
             self.assertIn(".png", html)
             self.assertNotIn("<!--EXTENSOES-->", html)
+            formulario = html.split("<script>", 1)[0]
+            for bloco in re.findall(r"<label\b[^>]*>.*?</label>", formulario, flags=re.S):
+                self.assertNotIn("<button", bloco)
 
     def test_cancelar(self):
         with tempfile.TemporaryDirectory() as tmp:
