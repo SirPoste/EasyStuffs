@@ -1,10 +1,12 @@
 @echo off
 rem Grava saida.txt na mesma pasta desta batch.
-rem Linha 1 = primeiro argumento, linha 2 = segundo argumento, linha 3 = terceiro argumento.
-rem Uso: criar_txt.bat 12345678901234567 42 7
+rem Linha 1 = string com 12 caracteres
+rem Linha 2 = numero com 17 caracteres
+rem Linha 3 = numero com 2 caracteres
+rem Uso: criar_txt.bat ABCDEFGHIJKL 12345678901234567 42
 
 if "%~3"=="" (
-    echo Uso: %~nx0 ^<input1^> ^<input2^> ^<input3^>
+    echo Uso: %~nx0 ^<12caracteres^> ^<17digitos^> ^<2digitos^>
     exit /b 1
 )
 
