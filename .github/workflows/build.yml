@@ -1,0 +1,57 @@
+name: Testes
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  image-updater:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: image-updater
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: Test
+        run: go test ./...
+      - name: Build Windows exe
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o ImageUpdater.exe .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ImageUpdater
+          path: image-updater/ImageUpdater.exe
+
+  limpar-ficheiro:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: limpar-ficheiro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: Test
+        run: go test ./...
+      - name: Build Windows exe
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o limpar-ficheiro.exe .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: limpar-ficheiro
+          path: limpar-ficheiro/limpar-ficheiro.exe
+
+  comparar-imagens:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: comparar-imagens
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test
+        run: python -m unittest discover -s tests -v
