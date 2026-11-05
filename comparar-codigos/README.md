@@ -1,10 +1,10 @@
 # Comparar códigos
 
-Programa Windows que lê dois códigos de barras no formato `1#SSSSSSSPPPPPPPPPP` e compara o número **S**.
+Programa Windows que lê dois códigos de barras no formato `1#SSSSSSSPPPPPPPPPP` e compara o **Serial Number**.
 
 - `1#` é fixo.
-- `S` são os 7 dígitos logo a seguir. É este número que tem de ser igual.
-- `P` são os 10 dígitos a seguir ao `S`. Não entra na comparação.
+- O Serial Number são os 7 dígitos logo a seguir. É este número que tem de ser igual.
+- `P` são os 10 dígitos a seguir ao Serial Number. Não entra na comparação.
 
 Os zeros à esquerda contam. `0000001` e `0000002` são números diferentes.
 
@@ -24,12 +24,12 @@ O logotipo dos quatro anéis fica no topo da página. **Nova leitura** limpa os 
 comparar-codigos.exe 1#12345671234567890 1#12345679999999999
 ```
 
-O `S` destes dois códigos é `1234567` nos dois, por isso o resultado é igual mesmo que o `P` mude. O programa termina com código 0 quando o `S` é igual, 2 quando é diferente e 1 quando um código não tem o formato certo.
+O Serial Number destes dois códigos é `1234567` nos dois, por isso o resultado é igual mesmo que o `P` mude. O programa termina com código 0 quando o Serial Number é igual, 2 quando é diferente e 1 quando um código não tem o formato certo.
 
 ```text
 Codigo 1: 1#12345671234567890
 Codigo 2: 1#12345679999999999
-Numero S: 1234567 igual a 1234567
+Serial Number: 1234567 igual a 1234567
 Resultado: IGUAIS
 ```
 

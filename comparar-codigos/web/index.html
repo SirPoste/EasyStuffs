@@ -129,7 +129,7 @@
       </svg>
     </div>
     <h1>Comparar códigos</h1>
-    <p class="lead">Leia dois códigos <strong>1#SSSSSSSPPPPPPPPPP</strong>. O programa compara o número S, os 7 dígitos a seguir a <strong>1#</strong>.</p>
+    <p class="lead">Leia dois códigos <strong>1#SSSSSSSPPPPPPPPPP</strong>. O programa compara o Serial Number, os 7 dígitos a seguir a <strong>1#</strong>.</p>
     <form id="leitura" autocomplete="off">
       <label for="codigo1">Primeiro código</label>
       <input id="codigo1" name="codigo1" autofocus spellcheck="false" autocomplete="off">
@@ -221,7 +221,7 @@
       estado.textContent = data.iguais ? "IGUAIS" : "DIFERENTES";
       const numeros = document.createElement("p");
       numeros.className = "numeros";
-      numeros.textContent = "Número S: " + data.s1 + (data.iguais ? " igual a " : " diferente de ") + data.s2;
+      numeros.textContent = "Serial Number: " + data.s1 + (data.iguais ? " igual a " : " diferente de ") + data.s2;
       const codigos = document.createElement("p");
       codigos.className = "codigos";
       codigos.textContent = data.codigo1 + "\n" + data.codigo2;

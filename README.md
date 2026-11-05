@@ -8,4 +8,4 @@ Programas pequenos e independentes. Cada ferramenta está na sua pasta.
 | [limpar-ficheiro](limpar-ficheiro/) | Esvazia um ficheiro sem o apagar |
 | [image-updater](image-updater/) | Copia as imagens de uma pasta `update` para as outras pastas |
 | [comparar-imagens](comparar-imagens/) | Compara duas pastas de imagens e copia as diferenças |
-| [comparar-codigos](comparar-codigos/) | Compara o número S de dois códigos `1#SSSSSSSPPPPPPPPPP` |
+| [comparar-codigos](comparar-codigos/) | Compara o Serial Number de dois códigos `1#SSSSSSSPPPPPPPPPP` |

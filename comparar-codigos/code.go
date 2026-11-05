@@ -62,7 +62,7 @@ func Report(r Result) string {
 		outcome = "IGUAIS"
 	}
 	return fmt.Sprintf(
-		"Codigo 1: %s\nCodigo 2: %s\nNumero S: %s %s %s\nResultado: %s\n",
+		"Codigo 1: %s\nCodigo 2: %s\nSerial Number: %s %s %s\nResultado: %s\n",
 		r.Left.Raw, r.Right.Raw,
 		r.Left.S, relation(r.SEqual), r.Right.S,
 		outcome,

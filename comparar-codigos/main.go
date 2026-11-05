@@ -23,9 +23,9 @@ func run(prog string, args []string, stdout, stderr io.Writer) int {
 		return compareOnce(args[0], args[1], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "Uso: %s\n", name)
-		fmt.Fprintf(stderr, "Sem argumentos, abre a pagina para comparar o numero S.\n")
+		fmt.Fprintf(stderr, "Sem argumentos, abre a pagina para comparar o Serial Number.\n")
 		fmt.Fprintf(stderr, "%s <codigo1> <codigo2> compara os dois codigos na consola.\n", name)
-		fmt.Fprintf(stderr, "Formato: %s, depois %d digitos (S) e %d digitos (P). So o S e comparado.\n", codePrefix, sDigits, pDigits)
+		fmt.Fprintf(stderr, "Formato: %s, depois %d digitos (Serial Number) e %d digitos (P). So o Serial Number e comparado.\n", codePrefix, sDigits, pDigits)
 		return 1
 	}
 }

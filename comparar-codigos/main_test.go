@@ -26,7 +26,7 @@ func TestRunCommandLineSameSDifferentP(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("saida = %d, stdout = %s, stderr = %s", code, out.String(), err.String())
 	}
-	if !strings.Contains(out.String(), "Numero S: 1234567 igual a 1234567") {
+	if !strings.Contains(out.String(), "Serial Number: 1234567 igual a 1234567") {
 		t.Fatalf("stdout = %s", out.String())
 	}
 	if !strings.Contains(out.String(), "Resultado: IGUAIS") {
