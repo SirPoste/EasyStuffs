@@ -29,6 +29,12 @@ func TestIndexPage(t *testing.T) {
 	if !strings.Contains(body, `id="sair"`) {
 		t.Fatal("faltava o botao para fechar o programa")
 	}
+	primeiro := strings.Index(body, `id="codigo1"`)
+	resultado := strings.Index(body, `id="resultado"`)
+	segundo := strings.Index(body, `id="codigo2"`)
+	if primeiro < 0 || resultado < 0 || segundo < 0 || !(primeiro < resultado && resultado < segundo) {
+		t.Fatal("o resultado devia ficar entre os dois codigos")
+	}
 	if !strings.Contains(rec.Header().Get("Content-Type"), "text/html") {
 		t.Fatalf("content-type = %s", rec.Header().Get("Content-Type"))
 	}
