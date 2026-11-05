@@ -1,29 +1,28 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func main() {
-	os.Exit(run(os.Args[0], os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
+	os.Exit(run(os.Args[0], os.Args[1:], os.Stdout, os.Stderr))
 }
 
-func run(prog string, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
+func run(prog string, args []string, stdout, stderr io.Writer) int {
 	name := filepath.Base(prog)
 	switch len(args) {
 	case 0:
-		return interactive(stdin, stdout, stderr)
+		return serveWeb(stdout, stderr)
 	case 2:
 		return compareOnce(args[0], args[1], stdout, stderr)
 	default:
-		fmt.Fprintf(stderr, "Uso: %s <codigo1> <codigo2>\n", name)
-		fmt.Fprintf(stderr, "Sem argumentos, pede os dois codigos no ecra.\n")
-		fmt.Fprintf(stderr, "Formato: %s e depois %d digitos (S) e %d digitos (P).\n", codePrefix, sDigits, pDigits)
+		fmt.Fprintf(stderr, "Uso: %s\n", name)
+		fmt.Fprintf(stderr, "Sem argumentos, abre a pagina para comparar o numero S.\n")
+		fmt.Fprintf(stderr, "%s <codigo1> <codigo2> compara os dois codigos na consola.\n", name)
+		fmt.Fprintf(stderr, "Formato: %s, depois %d digitos (S) e %d digitos (P). So o S e comparado.\n", codePrefix, sDigits, pDigits)
 		return 1
 	}
 }
@@ -45,36 +44,4 @@ func compareOnce(leftRaw, rightRaw string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	return 2
-}
-
-func interactive(stdin io.Reader, stdout, stderr io.Writer) int {
-	in := bufio.NewReader(stdin)
-	fmt.Fprintln(stdout, "Comparar dois codigos de barras")
-	fmt.Fprintf(stdout, "Formato: %s + %d digitos (S) + %d digitos (P)\n", codePrefix, sDigits, pDigits)
-	fmt.Fprintln(stdout, "Enter vazio para sair.")
-	for {
-		fmt.Fprint(stdout, "Primeiro codigo: ")
-		first, ok := readLine(in)
-		if !ok || first == "" {
-			fmt.Fprintln(stdout)
-			return 0
-		}
-		fmt.Fprint(stdout, "Segundo codigo: ")
-		second, ok := readLine(in)
-		if !ok || second == "" {
-			fmt.Fprintln(stdout)
-			return 0
-		}
-		fmt.Fprintln(stdout)
-		compareOnce(first, second, stdout, stderr)
-		fmt.Fprintln(stdout)
-	}
-}
-
-func readLine(in *bufio.Reader) (string, bool) {
-	line, err := in.ReadString('\n')
-	if line == "" && err != nil {
-		return "", false
-	}
-	return strings.TrimSpace(line), true
 }

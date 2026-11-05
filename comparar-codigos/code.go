@@ -21,7 +21,7 @@ type Code struct {
 	P   string
 }
 
-// Result is the comparison of the S and P numbers from two codes.
+// Result is the comparison of two codes. The decision uses only S.
 type Result struct {
 	Left   Code
 	Right  Code
@@ -29,9 +29,9 @@ type Result struct {
 	PEqual bool
 }
 
-// Equal reports whether both numbers match.
+// Equal reports whether the S numbers match. P is ignored.
 func (r Result) Equal() bool {
-	return r.SEqual && r.PEqual
+	return r.SEqual
 }
 
 // Parse reads one barcode. Spaces around the reading are ignored.
@@ -62,10 +62,9 @@ func Report(r Result) string {
 		outcome = "IGUAIS"
 	}
 	return fmt.Sprintf(
-		"Codigo 1: %s\nCodigo 2: %s\nNumero S: %s %s %s\nNumero P: %s %s %s\nResultado: %s\n",
+		"Codigo 1: %s\nCodigo 2: %s\nNumero S: %s %s %s\nResultado: %s\n",
 		r.Left.Raw, r.Right.Raw,
 		r.Left.S, relation(r.SEqual), r.Right.S,
-		r.Left.P, relation(r.PEqual), r.Right.P,
 		outcome,
 	)
 }

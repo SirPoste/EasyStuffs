@@ -62,6 +62,15 @@ func TestCompareKeepsLeadingZeros(t *testing.T) {
 	if result.SEqual || !result.PEqual || result.Equal() {
 		t.Fatalf("so o S devia diferir: %+v", result)
 	}
+
+	sameS, err := Parse("1#00000019999999999")
+	if err != nil {
+		t.Fatal(err)
+	}
+	result = Compare(left, sameS)
+	if !result.Equal() || !result.SEqual || result.PEqual {
+		t.Fatalf("o S igual devia chegar, mesmo com P diferente: %+v", result)
+	}
 }
 
 func TestReport(t *testing.T) {
@@ -74,16 +83,25 @@ func TestReport(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := Report(Compare(left, same))
-	if !containsAll(text, "IGUAIS", "1234567 igual a 1234567", "1234567890 igual a 1234567890") {
+	if !containsAll(text, "IGUAIS", "1234567 igual a 1234567") {
 		t.Fatalf("relatorio inesperado:\n%s", text)
 	}
 
-	other, err := Parse("1#12345679999999999")
+	otherP, err := Parse("1#12345679999999999")
 	if err != nil {
 		t.Fatal(err)
 	}
-	text = Report(Compare(left, other))
-	if !containsAll(text, "DIFERENTES", "1234567 igual a 1234567", "1234567890 diferente de 9999999999") {
+	text = Report(Compare(left, otherP))
+	if !containsAll(text, "IGUAIS", "1234567 igual a 1234567") || strings.Contains(text, "DIFERENTES") || strings.Contains(text, "Numero P") {
+		t.Fatalf("o P diferente nao devia mudar o resultado:\n%s", text)
+	}
+
+	otherS, err := Parse("1#76543211234567890")
+	if err != nil {
+		t.Fatal(err)
+	}
+	text = Report(Compare(left, otherS))
+	if !containsAll(text, "DIFERENTES", "1234567 diferente de 7654321") {
 		t.Fatalf("relatorio inesperado:\n%s", text)
 	}
 }
