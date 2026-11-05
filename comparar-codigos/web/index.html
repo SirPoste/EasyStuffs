@@ -66,6 +66,7 @@
     }
     button[type="submit"] { background: #111; color: #fff; }
     button[type="button"] { background: #fff; color: #111; }
+    #sair { margin-left: auto; }
     .resultado {
       margin-top: 22px;
       padding: 18px 16px;
@@ -137,6 +138,7 @@
       <div class="acoes">
         <button type="submit">Comparar</button>
         <button type="button" id="limpar">Nova leitura</button>
+        <button type="button" id="sair">Sair</button>
       </div>
     </form>
     <section id="resultado" class="resultado" aria-live="polite">
@@ -148,6 +150,7 @@
     const codigo1 = document.querySelector("#codigo1");
     const codigo2 = document.querySelector("#codigo2");
     const limpar = document.querySelector("#limpar");
+    const sair = document.querySelector("#sair");
     const resultado = document.querySelector("#resultado");
 
     codigo1.addEventListener("keydown", (event) => {
@@ -173,6 +176,25 @@
       espera.textContent = "À espera dos dois códigos.";
       resultado.append(espera);
       codigo1.focus();
+    });
+
+    sair.addEventListener("click", async () => {
+      if (!window.confirm("Fechar o programa?")) {
+        return;
+      }
+      try {
+        await fetch("/api/sair", { method: "POST" });
+      } catch (err) {
+        // O programa pode já ter fechado.
+      }
+      resultado.className = "resultado";
+      resultado.replaceChildren();
+      const aviso = document.createElement("p");
+      aviso.className = "vazio";
+      aviso.textContent = "Programa fechado. Pode fechar esta página.";
+      resultado.append(aviso);
+      codigo1.disabled = true;
+      codigo2.disabled = true;
     });
 
     function focar(campo) {

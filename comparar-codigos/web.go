@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,8 +20,15 @@ import (
 var indexHTML []byte
 
 func serveWeb(stdout, stderr io.Writer) int {
-	ln, err := net.Listen("tcp", "127.0.0.1:8741")
+	const fixed = "127.0.0.1:8741"
+	ln, err := net.Listen("tcp", fixed)
 	if err != nil {
+		page := "http://" + fixed + "/"
+		if pageIsOurs(page) {
+			fmt.Fprintf(stdout, "Pagina: %s\n", page)
+			openBrowser(page)
+			return 0
+		}
 		ln, err = net.Listen("tcp", "127.0.0.1:0")
 	}
 	if err != nil {
@@ -27,20 +36,35 @@ func serveWeb(stdout, stderr io.Writer) int {
 		return 1
 	}
 
-	url := "http://" + ln.Addr().String()
+	url := "http://" + ln.Addr().String() + "/"
 	fmt.Fprintf(stdout, "Pagina: %s\n", url)
-	fmt.Fprintln(stdout, "Feche esta janela para sair.")
-	openBrowser(url)
 
-	server := &http.Server{
-		Handler:           newMux(),
-		ReadHeaderTimeout: 5 * time.Second,
-	}
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
+	server.Handler = newMux(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = server.Shutdown(ctx)
+	})
+	openBrowser(url)
 	if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
 		fmt.Fprintf(stderr, "Erro: %v\n", err)
 		return 1
 	}
 	return 0
+}
+
+func pageIsOurs(rawURL string) bool {
+	client := &http.Client{Timeout: 500 * time.Millisecond}
+	resp, err := client.Get(rawURL)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 8192))
+	if err != nil {
+		return false
+	}
+	return resp.StatusCode == http.StatusOK && bytes.Contains(body, []byte(`id="leitura"`))
 }
 
 func openBrowser(url string) {
@@ -59,10 +83,21 @@ func openBrowser(url string) {
 	_ = cmd.Start()
 }
 
-func newMux() http.Handler {
+func newMux(stop func()) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", indexHandler)
 	mux.HandleFunc("POST /api/comparar", compareHandler)
+	mux.HandleFunc("POST /api/sair", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("{\"ok\":true}\n"))
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+		if stop != nil {
+			go stop()
+		}
+	})
 	return mux
 }
 

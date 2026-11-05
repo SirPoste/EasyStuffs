@@ -10,13 +10,13 @@ Os zeros à esquerda contam. `0000001` e `0000002` são números diferentes.
 
 ## Na página
 
-Duplo clique em `comparar-codigos.exe`. O programa abre a página no browser e deixa uma janela de consola aberta. Essa janela tem de ficar aberta enquanto usa a página. Para sair, feche-a.
+Duplo clique em `comparar-codigos.exe`. Não abre uma janela de consola: o browser abre direto na página.
 
 1. Leia o primeiro código. O leitor envia Enter e o cursor passa ao segundo campo.
 2. Leia o segundo código.
 3. A página mostra **IGUAIS** ou **DIFERENTES**.
 
-O logotipo dos quatro anéis fica no topo da página. **Nova leitura** limpa os dois campos.
+O logotipo dos quatro anéis fica no topo da página. **Nova leitura** limpa os dois campos. **Sair** fecha o programa. Fechar só o separador do browser deixa o programa a correr; outro duplo clique volta a abrir a página.
 
 ## Na linha de comandos
 
@@ -39,11 +39,11 @@ Precisa de [Go](https://go.dev/). Nesta pasta:
 
 ```bat
 go test
-go build -ldflags="-s -w" -o comparar-codigos.exe
+go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe
 ```
 
 Para gerar o `.exe` a partir de Linux ou macOS:
 
 ```sh
-GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o comparar-codigos.exe
+GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe
 ```

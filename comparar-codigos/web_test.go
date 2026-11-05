@@ -2,17 +2,20 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestIndexPage(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
-	newMux().ServeHTTP(rec, req)
+	newMux(nil).ServeHTTP(rec, req)
 	if rec.Code != http.StatusOK {
 		t.Fatalf("estado = %d", rec.Code)
 	}
@@ -22,6 +25,9 @@ func TestIndexPage(t *testing.T) {
 	}
 	if !strings.Contains(body, "Primeiro código") || !strings.Contains(body, "Segundo código") {
 		t.Fatal("faltam os campos de leitura")
+	}
+	if !strings.Contains(body, `id="sair"`) {
+		t.Fatal("faltava o botao para fechar o programa")
 	}
 	if !strings.Contains(rec.Header().Get("Content-Type"), "text/html") {
 		t.Fatalf("content-type = %s", rec.Header().Get("Content-Type"))
@@ -61,6 +67,61 @@ func TestAPIInvalidSecondCode(t *testing.T) {
 	}
 }
 
+func TestPageIsOurs(t *testing.T) {
+	ours := httptest.NewServer(newMux(nil))
+	t.Cleanup(ours.Close)
+	if !pageIsOurs(ours.URL + "/") {
+		t.Fatal("devia reconhecer a pagina")
+	}
+
+	other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("outra coisa"))
+	}))
+	t.Cleanup(other.Close)
+	if pageIsOurs(other.URL + "/") {
+		t.Fatal("nao devia reconhecer outra pagina")
+	}
+}
+
+func TestSairEncerraServidor(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
+	server.Handler = newMux(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = server.Shutdown(ctx)
+	})
+	done := make(chan error, 1)
+	go func() {
+		err := server.Serve(ln)
+		if err == http.ErrServerClosed {
+			err = nil
+		}
+		done <- err
+	}()
+
+	resp, err := http.Post("http://"+ln.Addr().String()+"/api/sair", "application/json", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("estado = %d", resp.StatusCode)
+	}
+
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("o programa nao fechou")
+	}
+}
+
 func postCompare(t *testing.T, first, second string) *httptest.ResponseRecorder {
 	t.Helper()
 	payload, err := json.Marshal(compareRequest{Codigo1: first, Codigo2: second})
@@ -69,7 +130,7 @@ func postCompare(t *testing.T, first, second string) *httptest.ResponseRecorder 
 	}
 	req := httptest.NewRequest(http.MethodPost, "/api/comparar", bytes.NewReader(payload))
 	rec := httptest.NewRecorder()
-	newMux().ServeHTTP(rec, req)
+	newMux(nil).ServeHTTP(rec, req)
 	return rec
 }
 

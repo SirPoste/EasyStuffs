@@ -56,7 +56,7 @@ jobs:
       - name: Test
         run: go test ./...
       - name: Build Windows exe
-        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o comparar-codigos.exe .
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe .
       - uses: actions/upload-artifact@v4
         with:
           name: comparar-codigos

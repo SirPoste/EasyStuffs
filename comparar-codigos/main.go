@@ -8,6 +8,9 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 {
+		attachParentConsole()
+	}
 	os.Exit(run(os.Args[0], os.Args[1:], os.Stdout, os.Stderr))
 }
 
