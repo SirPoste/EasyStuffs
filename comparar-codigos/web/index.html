@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comparar códigos</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #ececec;
+      color: #111;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    main {
+      width: min(720px, calc(100% - 32px));
+      margin: 28px auto 48px;
+      background: #fff;
+      padding: 28px 28px 36px;
+      border-top: 6px solid #000;
+    }
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .audi { width: min(420px, 100%); height: auto; }
+    h1 {
+      margin: 12px 0 6px;
+      text-align: center;
+      font-size: 1.7rem;
+      font-weight: 650;
+    }
+    .lead {
+      margin: 0 0 22px;
+      text-align: center;
+      color: #333;
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      font-weight: 650;
+    }
+    input {
+      width: 100%;
+      padding: 14px 12px;
+      border: 2px solid #111;
+      border-radius: 0;
+      font: 1.25rem/1.3 Consolas, "Courier New", monospace;
+      background: #fff;
+    }
+    input:focus { outline: 3px solid #111; outline-offset: 1px; }
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    button {
+      padding: 12px 18px;
+      font: 1rem/1 "Segoe UI", Arial, sans-serif;
+      cursor: pointer;
+      border: 2px solid #111;
+    }
+    button[type="submit"] { background: #111; color: #fff; }
+    button[type="button"] { background: #fff; color: #111; }
+    #sair { margin-left: auto; }
+    .resultado {
+      margin: 16px 0 4px;
+      padding: 18px 16px;
+      border: 2px solid #ddd;
+      min-height: 88px;
+    }
+    .resultado.iguais { border-color: #0b7a32; background: #e8f6ec; }
+    .resultado.diferentes { border-color: #a3001d; background: #fdecef; }
+    .resultado.erro { border-color: #8a5a00; background: #fff6e4; }
+    .estado {
+      margin: 0 0 8px;
+      font-size: 2.4rem;
+      font-weight: 750;
+      letter-spacing: 0.04em;
+    }
+    .iguais .estado { color: #0b7a32; }
+    .diferentes .estado { color: #a3001d; }
+    .numeros {
+      margin: 0;
+      font: 1.45rem/1.4 Consolas, "Courier New", monospace;
+    }
+    .codigos {
+      margin: 12px 0 0;
+      color: #333;
+      font: 0.95rem/1.45 Consolas, "Courier New", monospace;
+      white-space: pre-line;
+      word-break: break-all;
+    }
+    .vazio { margin: 0; color: #555; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo">
+      <svg class="audi" viewBox="0 0 266 116" role="img" aria-label="Audi">
+        <title>Audi</title>
+        <rect width="266" height="116" fill="#ffffff"/>
+        <g fill="none" stroke="#000000" stroke-width="6" stroke-linecap="butt">
+          <circle cx="52" cy="64" r="40"/>
+          <circle cx="106" cy="64" r="40"/>
+          <circle cx="160" cy="64" r="40"/>
+          <circle cx="214" cy="64" r="40"/>
+        </g>
+        <g fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="butt">
+          <path d="M 84.55 40.75 A 40.00 40.00 0 0 0 72.27 29.52"/>
+          <path d="M 73.45 87.25 A 40.00 40.00 0 0 0 85.73 98.48"/>
+          <path d="M 138.55 40.75 A 40.00 40.00 0 0 0 126.27 29.52"/>
+          <path d="M 127.45 87.25 A 40.00 40.00 0 0 0 139.73 98.48"/>
+          <path d="M 192.55 40.75 A 40.00 40.00 0 0 0 180.27 29.52"/>
+          <path d="M 181.45 87.25 A 40.00 40.00 0 0 0 193.73 98.48"/>
+        </g>
+        <g fill="none" stroke="#000000" stroke-width="6" stroke-linecap="butt">
+          <path d="M 86.80 44.28 A 40.00 40.00 0 0 0 68.56 27.59"/>
+          <path d="M 71.20 83.72 A 40.00 40.00 0 0 0 89.44 100.41"/>
+          <path d="M 140.80 44.28 A 40.00 40.00 0 0 0 122.56 27.59"/>
+          <path d="M 125.20 83.72 A 40.00 40.00 0 0 0 143.44 100.41"/>
+          <path d="M 194.80 44.28 A 40.00 40.00 0 0 0 176.56 27.59"/>
+          <path d="M 179.20 83.72 A 40.00 40.00 0 0 0 197.44 100.41"/>
+        </g>
+      </svg>
+    </div>
+    <h1>Comparar códigos</h1>
+    <p class="lead">Leia dois códigos <strong>1#SSSSSSSPPPPPPPPPP</strong>. O programa compara o Serial Number, os 7 dígitos a seguir a <strong>1#</strong>.</p>
+    <form id="leitura" autocomplete="off">
+      <label for="codigo1">Primeiro código</label>
+      <input id="codigo1" name="codigo1" autofocus spellcheck="false" autocomplete="off">
+      <section id="resultado" class="resultado" aria-live="polite">
+        <p class="vazio">À espera dos dois códigos.</p>
+      </section>
+      <label for="codigo2">Segundo código</label>
+      <input id="codigo2" name="codigo2" spellcheck="false" autocomplete="off">
+      <div class="acoes">
+        <button type="submit">Comparar</button>
+        <button type="button" id="limpar">Nova leitura</button>
+        <button type="button" id="sair">Sair</button>
+      </div>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector("#leitura");
+    const codigo1 = document.querySelector("#codigo1");
+    const codigo2 = document.querySelector("#codigo2");
+    const limpar = document.querySelector("#limpar");
+    const sair = document.querySelector("#sair");
+    const resultado = document.querySelector("#resultado");
+
+    codigo1.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        codigo2.focus();
+        codigo2.select();
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      comparar();
+    });
+
+    limpar.addEventListener("click", () => {
+      codigo1.value = "";
+      codigo2.value = "";
+      resultado.className = "resultado";
+      resultado.replaceChildren();
+      const espera = document.createElement("p");
+      espera.className = "vazio";
+      espera.textContent = "À espera dos dois códigos.";
+      resultado.append(espera);
+      codigo1.focus();
+    });
+
+    sair.addEventListener("click", async () => {
+      if (!window.confirm("Fechar o programa?")) {
+        return;
+      }
+      try {
+        await fetch("/api/sair", { method: "POST" });
+      } catch (err) {
+        // O programa pode já ter fechado.
+      }
+      resultado.className = "resultado";
+      resultado.replaceChildren();
+      const aviso = document.createElement("p");
+      aviso.className = "vazio";
+      aviso.textContent = "Programa fechado. Pode fechar esta página.";
+      resultado.append(aviso);
+      codigo1.disabled = true;
+      codigo2.disabled = true;
+    });
+
+    function focar(campo) {
+      campo.focus();
+      campo.select();
+    }
+
+    function mostrarErro(texto) {
+      resultado.className = "resultado erro";
+      resultado.replaceChildren();
+      const p = document.createElement("p");
+      p.className = "estado";
+      p.textContent = "Erro";
+      const detalhe = document.createElement("p");
+      detalhe.textContent = texto;
+      resultado.append(p, detalhe);
+    }
+
+    function mostrarResultado(data) {
+      resultado.className = data.iguais ? "resultado iguais" : "resultado diferentes";
+      resultado.replaceChildren();
+      const estado = document.createElement("p");
+      estado.className = "estado";
+      estado.textContent = data.iguais ? "IGUAIS" : "DIFERENTES";
+      const numeros = document.createElement("p");
+      numeros.className = "numeros";
+      numeros.textContent = "Serial Number: " + data.s1 + (data.iguais ? " igual a " : " diferente de ") + data.s2;
+      const codigos = document.createElement("p");
+      codigos.className = "codigos";
+      codigos.textContent = data.codigo1 + "\n" + data.codigo2;
+      resultado.append(estado, numeros, codigos);
+    }
+
+    async function comparar() {
+      let response;
+      try {
+        response = await fetch("/api/comparar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ codigo1: codigo1.value, codigo2: codigo2.value }),
+        });
+      } catch (err) {
+        mostrarErro("Não foi possível contactar o programa.");
+        return;
+      }
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (err) {
+        mostrarErro("Resposta inválida do programa.");
+        return;
+      }
+      if (!response.ok) {
+        mostrarErro(data.erro || "Não foi possível comparar.");
+        focar(data.campo === 2 ? codigo2 : codigo1);
+        return;
+      }
+      mostrarResultado(data);
+      focar(codigo1);
+    }
+  </script>
+</body>
+</html>
