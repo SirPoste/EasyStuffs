@@ -8,4 +8,4 @@ Programas pequenos e independentes. Cada ferramenta está na sua pasta.
 | [limpar-ficheiro](limpar-ficheiro/) | Esvazia um ficheiro sem o apagar |
 | [image-updater](image-updater/) | Copia as imagens de uma pasta `update` para as outras pastas |
 | [comparar-imagens](comparar-imagens/) | Compara duas pastas de imagens e copia as diferenças |
-| [novo-programa](novo-programa/) | Pasta livre para o próximo mini programa |
+| [comparar-codigos](comparar-codigos/) | Compara os números S e P de dois códigos `1#SSSSSSSPPPPPPPPPP` |
