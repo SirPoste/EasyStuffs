@@ -20,6 +20,7 @@ import (
 var indexHTML []byte
 
 func serveWeb(stdout, stderr io.Writer) int {
+	hideOwnConsole()
 	const fixed = "127.0.0.1:8741"
 	ln, err := net.Listen("tcp", fixed)
 	if err != nil {

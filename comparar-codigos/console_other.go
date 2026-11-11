@@ -2,4 +2,6 @@
 
 package main
 
+func hideOwnConsole() {}
+
 func attachParentConsole() {}

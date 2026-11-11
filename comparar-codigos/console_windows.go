@@ -5,9 +5,23 @@ import (
 	"syscall"
 )
 
+// hideOwnConsole closes the console window Windows opens on a double click.
+// The executable stays a normal console program, like the other tools, so the
+// antivirus on a network share does not delete it.
+func hideOwnConsole() {
+	kernel32 := syscall.NewLazyDLL("kernel32.dll")
+	getConsoleWindow := kernel32.NewProc("GetConsoleWindow")
+	hwnd, _, _ := getConsoleWindow.Call()
+	if hwnd != 0 {
+		user32 := syscall.NewLazyDLL("user32.dll")
+		showWindow := user32.NewProc("ShowWindow")
+		showWindow.Call(hwnd, 0) // SW_HIDE
+	}
+	freeConsole := kernel32.NewProc("FreeConsole")
+	freeConsole.Call()
+}
+
 // attachParentConsole connects output to the console that launched the program.
-// The Windows executable has no console of its own, so a double click goes
-// straight to the browser. A comparison started from cmd still prints there.
 func attachParentConsole() {
 	kernel32 := syscall.NewLazyDLL("kernel32.dll")
 	attach := kernel32.NewProc("AttachConsole")
