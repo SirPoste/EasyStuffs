@@ -12,6 +12,8 @@ Os zeros à esquerda contam. `0000001` e `0000002` são números diferentes.
 
 Duplo clique em `comparar-codigos.exe`. O browser abre a página. A janela de consola fecha-se sozinha.
 
+Para trocar o executável, carregue primeiro em **Sair**. Enquanto o programa está aberto, o Windows não deixa substituir o ficheiro e o duplo clique volta a mostrar a página antiga.
+
 O executável é de 64 bits e do mesmo tipo que `limpar-ficheiro.exe` e `ImageUpdater.exe`. A versão anterior era de 32 bits e sem consola, e o antivírus da partilha apagava o ficheiro mal era copiado.
 
 `pagina.html` abre a mesma comparação diretamente no browser, sem o `.exe`.

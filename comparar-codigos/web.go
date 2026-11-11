@@ -65,7 +65,7 @@ func pageIsOurs(rawURL string) bool {
 	if err != nil {
 		return false
 	}
-	return resp.StatusCode == http.StatusOK && bytes.Contains(body, []byte(`id="leitura"`))
+	return resp.StatusCode == http.StatusOK && bytes.Contains(body, []byte(`content="aftermarket-1024"`))
 }
 
 func openBrowser(url string) {

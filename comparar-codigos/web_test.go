@@ -102,6 +102,14 @@ func TestPageIsOurs(t *testing.T) {
 	if pageIsOurs(other.URL + "/") {
 		t.Fatal("nao devia reconhecer outra pagina")
 	}
+
+	antiga := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`<form id="leitura"></form>`))
+	}))
+	t.Cleanup(antiga.Close)
+	if pageIsOurs(antiga.URL + "/") {
+		t.Fatal("nao devia reabrir uma pagina antiga")
+	}
 }
 
 func TestSairEncerraServidor(t *testing.T) {
