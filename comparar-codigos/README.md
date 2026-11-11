@@ -20,7 +20,7 @@ O executável é de 64 bits e do mesmo tipo que `limpar-ficheiro.exe` e `ImageUp
 2. Leia o segundo código.
 3. A página mostra **IGUAIS** ou **DIFERENTES**.
 
-O logotipo dos quatro anéis fica no topo da página. **Nova leitura** limpa os dois campos. **Sair** fecha o programa. Fechar só o separador do browser deixa o programa a correr; outro duplo clique volta a abrir a página.
+No topo, a Bosch fica à esquerda, **AfterMarket** ao centro e a Audi à direita. **Nova leitura** limpa os dois campos. **Sair** fecha o programa. Fechar só o separador do browser deixa o programa a correr; outro duplo clique volta a abrir a página.
 
 ## Na linha de comandos
 

@@ -23,6 +23,18 @@ func TestIndexPage(t *testing.T) {
 	if !strings.Contains(body, `aria-label="Audi"`) {
 		t.Fatal("a pagina devia ter o logotipo da Audi")
 	}
+	if !strings.Contains(body, `aria-label="Bosch"`) {
+		t.Fatal("a pagina devia ter o logotipo da Bosch")
+	}
+	if !strings.Contains(body, "AfterMarket") {
+		t.Fatal("a pagina devia ter o texto AfterMarket")
+	}
+	bosch := strings.Index(body, `aria-label="Bosch"`)
+	centro := strings.Index(body, "AfterMarket")
+	audi := strings.Index(body, `aria-label="Audi"`)
+	if bosch < 0 || centro < 0 || audi < 0 || !(bosch < centro && centro < audi) {
+		t.Fatal("a Bosch devia ficar a esquerda, AfterMarket ao centro e a Audi a direita")
+	}
 	if !strings.Contains(body, "Primeiro código") || !strings.Contains(body, "Segundo código") {
 		t.Fatal("faltam os campos de leitura")
 	}
