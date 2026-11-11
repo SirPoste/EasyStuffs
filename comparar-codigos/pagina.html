@@ -179,6 +179,15 @@
     });
 
     sair.addEventListener("click", async () => {
+      if (location.protocol === "file:") {
+        resultado.className = "resultado";
+        resultado.replaceChildren();
+        const aviso = document.createElement("p");
+        aviso.className = "vazio";
+        aviso.textContent = "Pode fechar esta página.";
+        resultado.append(aviso);
+        return;
+      }
       if (!window.confirm("Fechar o programa?")) {
         return;
       }
@@ -196,6 +205,33 @@
       codigo1.disabled = true;
       codigo2.disabled = true;
     });
+
+    function lerCodigo(texto) {
+      const codigo = texto.trim();
+      const resto = codigo.startsWith("1#") ? codigo.slice(2) : "";
+      if (!/^\d{17}$/.test(resto)) {
+        return null;
+      }
+      return { codigo: codigo, serial: resto.slice(0, 7) };
+    }
+
+    function compararLocal(primeiro, segundo) {
+      const esquerda = lerCodigo(primeiro);
+      if (!esquerda) {
+        return { erro: "O primeiro código não tem o formato 1# seguido de 7 dígitos e 10 dígitos.", campo: 1 };
+      }
+      const direita = lerCodigo(segundo);
+      if (!direita) {
+        return { erro: "O segundo código não tem o formato 1# seguido de 7 dígitos e 10 dígitos.", campo: 2 };
+      }
+      return {
+        iguais: esquerda.serial === direita.serial,
+        s1: esquerda.serial,
+        s2: direita.serial,
+        codigo1: esquerda.codigo,
+        codigo2: direita.codigo,
+      };
+    }
 
     function focar(campo) {
       campo.focus();
@@ -228,27 +264,10 @@
       resultado.append(estado, numeros, codigos);
     }
 
-    async function comparar() {
-      let response;
-      try {
-        response = await fetch("/api/comparar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ codigo1: codigo1.value, codigo2: codigo2.value }),
-        });
-      } catch (err) {
-        mostrarErro("Não foi possível contactar o programa.");
-        return;
-      }
-      let data = {};
-      try {
-        data = await response.json();
-      } catch (err) {
-        mostrarErro("Resposta inválida do programa.");
-        return;
-      }
-      if (!response.ok) {
-        mostrarErro(data.erro || "Não foi possível comparar.");
+    function comparar() {
+      const data = compararLocal(codigo1.value, codigo2.value);
+      if (data.erro) {
+        mostrarErro(data.erro);
         focar(data.campo === 2 ? codigo2 : codigo1);
         return;
       }

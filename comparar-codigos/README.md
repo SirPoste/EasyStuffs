@@ -10,7 +10,9 @@ Os zeros à esquerda contam. `0000001` e `0000002` são números diferentes.
 
 ## Na página
 
-Duplo clique em `comparar-codigos.exe`. Não abre uma janela de consola: o browser abre direto na página. O executável é de 32 bits, por isso abre num Windows de 32 bits e num de 64 bits.
+Duplo clique em `pagina.html`. O browser abre a comparação e não é preciso o `.exe`. Use este ficheiro se o Windows disser que `comparar-codigos.exe` não pode correr nesse PC.
+
+O `comparar-codigos.exe`, quando o Windows o deixa abrir, faz o mesmo: entra direto na página, sem janela de consola.
 
 1. Leia o primeiro código. O leitor envia Enter e o cursor passa ao segundo campo.
 2. Leia o segundo código.

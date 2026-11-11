@@ -26,6 +26,9 @@ func TestIndexPage(t *testing.T) {
 	if !strings.Contains(body, "Primeiro código") || !strings.Contains(body, "Segundo código") {
 		t.Fatal("faltam os campos de leitura")
 	}
+	if !strings.Contains(body, "function compararLocal") {
+		t.Fatal("a pagina devia comparar sem o executavel")
+	}
 	if !strings.Contains(body, `id="sair"`) {
 		t.Fatal("faltava o botao para fechar o programa")
 	}

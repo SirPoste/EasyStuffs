@@ -16,7 +16,7 @@ import (
 	_ "embed"
 )
 
-//go:embed web/index.html
+//go:embed pagina.html
 var indexHTML []byte
 
 func serveWeb(stdout, stderr io.Writer) int {
