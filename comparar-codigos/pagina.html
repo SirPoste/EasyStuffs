@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="comparar-versao" content="aftermarket-1024">
+  <title>Comparar códigos</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      box-sizing: border-box;
+      min-height: 100vh;
+      padding: 8px 0 10px;
+      background: #ececec;
+      color: #111;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    main {
+      width: min(760px, calc(100% - 16px));
+      margin: 0 auto;
+      background: #fff;
+      padding: 12px 18px 14px;
+      border-top: 5px solid #000;
+    }
+    .marca {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      column-gap: 16px;
+    }
+    .bosch { height: 62px; width: 62px; justify-self: start; }
+    .audi { height: 54px; width: auto; justify-self: end; }
+    .aftermarket {
+      margin: 0;
+      text-align: center;
+      font-size: 1.65rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+    }
+    h1 {
+      margin: 8px 0 2px;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 650;
+    }
+    .lead {
+      margin: 0 0 8px;
+      text-align: center;
+      color: #333;
+      line-height: 1.35;
+      font-size: 0.95rem;
+    }
+    label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: 650;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 2px solid #111;
+      border-radius: 0;
+      font: 1.15rem/1.25 Consolas, "Courier New", monospace;
+      background: #fff;
+    }
+    input:focus { outline: 3px solid #111; outline-offset: 1px; }
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 8px 14px;
+      font: 1rem/1 "Segoe UI", Arial, sans-serif;
+      cursor: pointer;
+      border: 2px solid #111;
+    }
+    button[type="submit"] { background: #111; color: #fff; }
+    button[type="button"] { background: #fff; color: #111; }
+    #sair { margin-left: auto; }
+    .resultado {
+      margin: 8px 0 2px;
+      padding: 10px 12px;
+      border: 2px solid #ddd;
+      min-height: 64px;
+    }
+    .resultado.iguais { border-color: #0b7a32; background: #e8f6ec; }
+    .resultado.diferentes { border-color: #a3001d; background: #fdecef; }
+    .resultado.erro { border-color: #8a5a00; background: #fff6e4; }
+    .estado {
+      margin: 0 0 4px;
+      font-size: 1.7rem;
+      font-weight: 750;
+      letter-spacing: 0.04em;
+    }
+    .iguais .estado { color: #0b7a32; }
+    .diferentes .estado { color: #a3001d; }
+    .numeros {
+      margin: 0;
+      font: 1.15rem/1.35 Consolas, "Courier New", monospace;
+    }
+    .codigos {
+      margin: 6px 0 0;
+      color: #333;
+      font: 0.95rem/1.45 Consolas, "Courier New", monospace;
+      white-space: pre-line;
+      word-break: break-all;
+    }
+    .vazio { margin: 0; color: #555; }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="marca">
+      <svg class="bosch" viewBox="0 0 97 97" role="img" aria-label="Bosch">
+        <title>Bosch</title>
+        <path fill="#111" d="M48.2.18a48.2,48.2,0,1,0,48.2,48.2A48.2,48.2,0,0,0,48.2.18Zm0,91.9a43.7,43.7,0,1,1,43.7-43.7,43.71,43.71,0,0,1-43.7,43.7Z"/>
+        <path fill="#111" d="M68.1,18.28H64.8v16.5H31.7V18.28H28.3a36.06,36.06,0,0,0,0,60.2h3.4V62H64.8v16.5h3.3a36.05,36.05,0,0,0,0-60.2ZM27.1,72A31.59,31.59,0,0,1,24.47,27.4a32.51,32.51,0,0,1,2.63-2.62Zm37.7-14.6H31.7V39.28H64.8Zm4.5,14.5v-10h0V34.78h0v-10a31.65,31.65,0,0,1,2.39,44.71A33.68,33.68,0,0,1,69.3,71.88Z"/>
+      </svg>
+      <p class="aftermarket">AfterMarket</p>
+      <svg class="audi" viewBox="8 20 250 88" role="img" aria-label="Audi">
+        <title>Audi</title>
+        <rect width="266" height="116" fill="#ffffff"/>
+        <g fill="none" stroke="#000000" stroke-width="6" stroke-linecap="butt">
+          <circle cx="52" cy="64" r="40"/>
+          <circle cx="106" cy="64" r="40"/>
+          <circle cx="160" cy="64" r="40"/>
+          <circle cx="214" cy="64" r="40"/>
+        </g>
+        <g fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="butt">
+          <path d="M 84.55 40.75 A 40.00 40.00 0 0 0 72.27 29.52"/>
+          <path d="M 73.45 87.25 A 40.00 40.00 0 0 0 85.73 98.48"/>
+          <path d="M 138.55 40.75 A 40.00 40.00 0 0 0 126.27 29.52"/>
+          <path d="M 127.45 87.25 A 40.00 40.00 0 0 0 139.73 98.48"/>
+          <path d="M 192.55 40.75 A 40.00 40.00 0 0 0 180.27 29.52"/>
+          <path d="M 181.45 87.25 A 40.00 40.00 0 0 0 193.73 98.48"/>
+        </g>
+        <g fill="none" stroke="#000000" stroke-width="6" stroke-linecap="butt">
+          <path d="M 86.80 44.28 A 40.00 40.00 0 0 0 68.56 27.59"/>
+          <path d="M 71.20 83.72 A 40.00 40.00 0 0 0 89.44 100.41"/>
+          <path d="M 140.80 44.28 A 40.00 40.00 0 0 0 122.56 27.59"/>
+          <path d="M 125.20 83.72 A 40.00 40.00 0 0 0 143.44 100.41"/>
+          <path d="M 194.80 44.28 A 40.00 40.00 0 0 0 176.56 27.59"/>
+          <path d="M 179.20 83.72 A 40.00 40.00 0 0 0 197.44 100.41"/>
+        </g>
+      </svg>
+    </header>
+    <h1>Comparar códigos</h1>
+    <p class="lead">Leia dois códigos <strong>1#SSSSSSSPPPPPPPPPP</strong>. O programa compara o Serial Number, os 7 dígitos a seguir a <strong>1#</strong>.</p>
+    <form id="leitura" autocomplete="off">
+      <label for="codigo1">Primeiro código</label>
+      <input id="codigo1" name="codigo1" autofocus spellcheck="false" autocomplete="off">
+      <section id="resultado" class="resultado" aria-live="polite">
+        <p class="vazio">À espera dos dois códigos.</p>
+      </section>
+      <label for="codigo2">Segundo código</label>
+      <input id="codigo2" name="codigo2" spellcheck="false" autocomplete="off">
+      <div class="acoes">
+        <button type="submit">Comparar</button>
+        <button type="button" id="limpar">Nova leitura</button>
+        <button type="button" id="sair">Sair</button>
+      </div>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector("#leitura");
+    const codigo1 = document.querySelector("#codigo1");
+    const codigo2 = document.querySelector("#codigo2");
+    const limpar = document.querySelector("#limpar");
+    const sair = document.querySelector("#sair");
+    const resultado = document.querySelector("#resultado");
+
+    codigo1.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        codigo2.focus();
+        codigo2.select();
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      comparar();
+    });
+
+    limpar.addEventListener("click", () => {
+      codigo1.value = "";
+      codigo2.value = "";
+      resultado.className = "resultado";
+      resultado.replaceChildren();
+      const espera = document.createElement("p");
+      espera.className = "vazio";
+      espera.textContent = "À espera dos dois códigos.";
+      resultado.append(espera);
+      codigo1.focus();
+    });
+
+    sair.addEventListener("click", async () => {
+      if (location.protocol === "file:") {
+        resultado.className = "resultado";
+        resultado.replaceChildren();
+        const aviso = document.createElement("p");
+        aviso.className = "vazio";
+        aviso.textContent = "Pode fechar esta página.";
+        resultado.append(aviso);
+        return;
+      }
+      if (!window.confirm("Fechar o programa?")) {
+        return;
+      }
+      try {
+        await fetch("/api/sair", { method: "POST" });
+      } catch (err) {
+        // O programa pode já ter fechado.
+      }
+      resultado.className = "resultado";
+      resultado.replaceChildren();
+      const aviso = document.createElement("p");
+      aviso.className = "vazio";
+      aviso.textContent = "Programa fechado. Pode fechar esta página.";
+      resultado.append(aviso);
+      codigo1.disabled = true;
+      codigo2.disabled = true;
+    });
+
+    function lerCodigo(texto) {
+      const codigo = texto.trim();
+      const resto = codigo.startsWith("1#") ? codigo.slice(2) : "";
+      if (!/^\d{17}$/.test(resto)) {
+        return null;
+      }
+      return { codigo: codigo, serial: resto.slice(0, 7) };
+    }
+
+    function compararLocal(primeiro, segundo) {
+      const esquerda = lerCodigo(primeiro);
+      if (!esquerda) {
+        return { erro: "O primeiro código não tem o formato 1# seguido de 7 dígitos e 10 dígitos.", campo: 1 };
+      }
+      const direita = lerCodigo(segundo);
+      if (!direita) {
+        return { erro: "O segundo código não tem o formato 1# seguido de 7 dígitos e 10 dígitos.", campo: 2 };
+      }
+      return {
+        iguais: esquerda.serial === direita.serial,
+        s1: esquerda.serial,
+        s2: direita.serial,
+        codigo1: esquerda.codigo,
+        codigo2: direita.codigo,
+      };
+    }
+
+    function focar(campo) {
+      campo.focus();
+      campo.select();
+    }
+
+    function mostrarErro(texto) {
+      resultado.className = "resultado erro";
+      resultado.replaceChildren();
+      const p = document.createElement("p");
+      p.className = "estado";
+      p.textContent = "Erro";
+      const detalhe = document.createElement("p");
+      detalhe.textContent = texto;
+      resultado.append(p, detalhe);
+    }
+
+    function mostrarResultado(data) {
+      resultado.className = data.iguais ? "resultado iguais" : "resultado diferentes";
+      resultado.replaceChildren();
+      const estado = document.createElement("p");
+      estado.className = "estado";
+      estado.textContent = data.iguais ? "IGUAIS" : "DIFERENTES";
+      const numeros = document.createElement("p");
+      numeros.className = "numeros";
+      numeros.textContent = "Serial Number: " + data.s1 + (data.iguais ? " igual a " : " diferente de ") + data.s2;
+      const codigos = document.createElement("p");
+      codigos.className = "codigos";
+      codigos.textContent = data.codigo1 + "\n" + data.codigo2;
+      resultado.append(estado, numeros, codigos);
+    }
+
+    function comparar() {
+      const data = compararLocal(codigo1.value, codigo2.value);
+      if (data.erro) {
+        mostrarErro(data.erro);
+        focar(data.campo === 2 ? codigo2 : codigo1);
+        return;
+      }
+      mostrarResultado(data);
+      focar(codigo1);
+    }
+  </script>
+</body>
+</html>
