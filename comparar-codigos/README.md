@@ -10,7 +10,7 @@ Os zeros à esquerda contam. `0000001` e `0000002` são números diferentes.
 
 ## Na página
 
-Duplo clique em `comparar-codigos.exe`. Não abre uma janela de consola: o browser abre direto na página.
+Duplo clique em `comparar-codigos.exe`. Não abre uma janela de consola: o browser abre direto na página. O executável é de 32 bits, por isso abre num Windows de 32 bits e num de 64 bits.
 
 1. Leia o primeiro código. O leitor envia Enter e o cursor passa ao segundo campo.
 2. Leia o segundo código.
@@ -39,11 +39,12 @@ Precisa de [Go](https://go.dev/). Nesta pasta:
 
 ```bat
 go test
+set GOARCH=386
 go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe
 ```
 
 Para gerar o `.exe` a partir de Linux ou macOS:
 
 ```sh
-GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe
+GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags="-s -w -H windowsgui" -o comparar-codigos.exe
 ```
